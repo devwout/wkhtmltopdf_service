@@ -7,9 +7,7 @@ var host = '0.0.0.0'
 var port = process.env.PORT || 8779;
 
 function wkhtmltopdf_command() {
-  // TODO: wkhtmltopdf should just be present in env.PATH (we could supply an environment script, however)
-  var command = '/Applications/wkhtmltopdf.app/Contents/MacOS/wkhtmltopdf'
-  return command;
+  return 'wkhtmltopdf'
 }
 
 exports.server = http.createServer(function (req, res) {
@@ -37,8 +35,13 @@ exports.server = http.createServer(function (req, res) {
               //'Content-Length': buffer.length
             });
             res.end(buffer);
-          } // TODO: else 500 & log
+          } else { // TODO: log error code
+            console.log('Error while running wkhtmltopdf: Error ' + code);
+            res.writeHead(500, {'Content-Type': 'text/plain'});
+            res.end('Error while running wkhtmltopdf');
+          }
         });
+        child.stdin.on('error', function() { });
         child.stdin.end(html);
       } else {
         res.writeHead(400, {'Content-Type': 'text/plain'});

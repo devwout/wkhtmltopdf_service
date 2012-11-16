@@ -1,0 +1,3 @@
+#!/bin/bash
+echo response_from_fail_stub
+exit 5
