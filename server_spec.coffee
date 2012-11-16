@@ -4,6 +4,7 @@ describe 'server', ->
   server = require('./server').server
   
   get = (path, callback)-> req('GET', path, null, callback)
+  post = (path, body, callback)-> req('POST', path, body, callback)
 
   req = (method, path, body, callback)->
     addr = server.address()
@@ -40,14 +41,14 @@ describe 'server', ->
   describe 'POST /pdf', ->
     describe 'without parameters in the body', ->
       it 'returns a 400 error', (done)->
-        req 'POST', '/pdf', '', (res, body)->
+        post '/pdf', '', (res, body)->
           expect(res.statusCode).toBe 400
           expect(body).toBe 'Form parameter "html" required'
           done()
 
     describe 'with a html parameter in the body', ->
       it 'returns a 200 with Content-Type application/pdf', (done)->
-        req 'POST', '/pdf', 'html=<body>Some Juicy Html</body>', (res, body)->
+        post '/pdf', 'html=<body>Some Juicy Html</body>', (res, body)->
           expect(res.statusCode).toBe 200
           expect(res.headers['content-type']).toBe 'application/pdf'
           expect(body.length).not.toBe 0
