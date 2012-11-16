@@ -83,7 +83,7 @@ describe 'server', ->
           expect(res.headers['content-type']).toBe 'text/plain'
           expect(body).toBe 'Error while running wkhtmltopdf'
           expect(process.stdout.write).toHaveBeenCalled()
-          expect(process.stdout.write.calls[0].args[0]).toMatch /Error 127/
+          expect(process.stdout.write.mostRecentCall.args).toMatch /Error 127/
           done()
 
       it 'returns a 500 error when wkhtmltopdf returns a nonzero status code', (done)->
@@ -96,7 +96,7 @@ describe 'server', ->
           expect(res.headers['content-type']).toBe 'text/plain'
           expect(body).toBe 'Error while running wkhtmltopdf'
           expect(process.stdout.write).toHaveBeenCalled()
-          expect(process.stdout.write.calls[0].args[0]).toMatch /Error 5/
+          expect(process.stdout.write.mostRecentCall.args).toMatch /Error 5/
           done()
 
   it '[AFTER] shuts down the HTTP server', ->
