@@ -1,0 +1,18 @@
+{
+  "author": "Ewout Van Troostenberghe <e@ewout.name>",
+  "name": "wkhtmltopdf_service",
+  "description": "Webservice that renders HTML pages to PDF using Webkit.",
+  "version": "0.0.1",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "jasmine-node": "1.0.26"
+  },
+  "engines": {
+    "node": "node >=0.8.4"
+  },
+  "scripts": {
+    "test": "jasmine-node --coffee --verbose .",
+    "start": "node server.js"
+  }
+}
