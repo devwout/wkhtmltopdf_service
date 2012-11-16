@@ -1,3 +1,4 @@
+var fs = require('fs');
 var http = require('http');
 var url = require('url');
 var querystring = require('querystring');
@@ -6,13 +7,23 @@ var child_process = require('child_process');
 var host = '0.0.0.0'
 var port = process.env.PORT || 8779;
 
+var documentation = fs.readFileSync('Readme.md');
+
 function wkhtmltopdf_command() {
   return 'wkhtmltopdf'
 }
 
 exports.server = http.createServer(function (req, res) {
   u = url.parse(req.url);
-  if (u.pathname == '/pdf') {
+  if (u.pathname == '/') {
+    if (req.method != 'GET') {
+      res.writeHead(405, {'Content-Type': 'text/plain'});
+      res.end('Only GET method allowed');
+      return;
+    }
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end(documentation);
+  } else if (u.pathname == '/pdf') {
     if (req.method != 'POST') {
       res.writeHead(405, {'Content-Type': 'text/plain'});
       res.end('Only POST method allowed');
@@ -35,7 +46,7 @@ exports.server = http.createServer(function (req, res) {
               //'Content-Length': buffer.length
             });
             res.end(buffer);
-          } else { // TODO: log error code
+          } else {
             console.log('Error while running wkhtmltopdf: Error ' + code);
             res.writeHead(500, {'Content-Type': 'text/plain'});
             res.end('Error while running wkhtmltopdf');

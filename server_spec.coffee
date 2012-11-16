@@ -25,7 +25,19 @@ describe 'server', ->
         done()
 
   describe 'GET /', ->
-    xit 'returns some documentation on the web service API' # TODO
+    it 'returns some documentation on the web service API', (done)->
+      get '/', (res, body)->
+        expect(res.statusCode).toBe 200
+        expect(res.headers['content-type']).toBe 'text/plain'
+        expect(body).toMatch /POST \/pdf/
+        done()
+  
+  describe 'POST /', ->
+    it 'returns a 405 error', (done)->
+      post '/', '', (res, body)->
+        expect(res.statusCode).toBe 405
+        expect(body).toBe 'Only GET method allowed'
+        done()
 
   describe 'GET /pdf', ->
     it 'returns a 405 error', (done)->
