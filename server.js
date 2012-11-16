@@ -35,31 +35,31 @@ function handleHtmlToPdf(html, res) {
 exports.server = http.createServer(function (req, res) {
   u = url.parse(req.url);
   if (u.pathname == '/') {
-    if (req.method != 'GET') {
+    if (req.method == 'GET') {
+      res.writeHead(200, {'Content-Type': 'text/plain'});
+      res.end(documentation);
+    } else {
       res.writeHead(405, {'Content-Type': 'text/plain'});
       res.end('Only GET method allowed');
-      return;
     }
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(documentation);
   } else if (u.pathname == '/pdf') {
-    if (req.method != 'POST') {
+    if (req.method == 'POST') {
+      var body = '';
+      req.on('data', function(data) { body += data });
+      req.on('end', function() {
+        var post = querystring.parse(body);
+        var html = post.html;
+        if (html) {
+          handleHtmlToPdf(html, res);
+        } else {
+          res.writeHead(400, {'Content-Type': 'text/plain'});
+          res.end('Form parameter "html" required');
+        }
+      });
+    } else {
       res.writeHead(405, {'Content-Type': 'text/plain'});
       res.end('Only POST method allowed');
-      return;
     }
-    var body = '';
-    req.on('data', function(data) { body += data });
-    req.on('end', function() {
-      var post = querystring.parse(body);
-      var html = post.html;
-      if (html) {
-        handleHtmlToPdf(html, res);
-      } else {
-        res.writeHead(400, {'Content-Type': 'text/plain'});
-        res.end('Form parameter "html" required');
-      }
-    });
   } else {
     res.writeHead(404, {'Content-Type': 'text/plain'});
     res.end('Not found');
