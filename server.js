@@ -1,4 +1,5 @@
 var fs = require('fs');
+var path = require('path')
 var http = require('http');
 var url = require('url');
 var querystring = require('querystring');
@@ -8,7 +9,7 @@ var host = '0.0.0.0'
 var port = process.env.PORT || 8779;
 
 var wkhtmltopdf = 'wkhtmltopdf' // command to execute
-var documentation = fs.readFileSync('Readme.md');
+var documentation = fs.readFileSync(path.join(__dirname, 'Readme.md'));
 
 function handleHtmlToPdf(html, res) {
   var child = child_process.spawn(wkhtmltopdf, ['-', '-']);
