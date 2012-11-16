@@ -14,7 +14,12 @@ function wkhtmltopdf_command() {
 
 exports.server = http.createServer(function (req, res) {
   u = url.parse(req.url);
-  if (req.method == 'POST' && u.pathname == '/pdf') {
+  if (u.pathname == '/pdf') {
+    if (req.method != 'POST') {
+      res.writeHead(405, {'Content-Type': 'text/plain'});
+      res.end('Only POST method allowed');
+      return;
+    }
     var body = '';
     req.on('data', function(data) { body += data });
     req.on('end', function() {
@@ -27,7 +32,10 @@ exports.server = http.createServer(function (req, res) {
         child.on('exit', function(code) {
           if (code === 0) {
             var buffer = Buffer.concat(buffers);
-            res.writeHead(200, {'Content-Type': 'application/pdf'}); // TODO: Content-Length
+            res.writeHead(200, {
+              'Content-Type': 'application/pdf', 
+              //'Content-Length': buffer.length
+            });
             res.end(buffer);
           } // TODO: else 500 & log
         });
