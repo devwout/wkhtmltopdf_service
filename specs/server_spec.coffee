@@ -1,7 +1,7 @@
 describe 'server', ->
 
   http = require('http')
-  server = require('./server').server
+  server = require('../server').server
   
   get = (path, callback)-> req('GET', path, null, callback)
   post = (path, body, callback)-> req('POST', path, body, callback)
@@ -15,7 +15,7 @@ describe 'server', ->
     r.end(body)
 
   beforeEach ->
-    process.env.PATH = 'stubs/ok'
+    process.env.PATH = __dirname + '/stubs/ok'
 
   describe 'GET randomurl', ->
     it 'returns a 404 error', (done)->
@@ -87,7 +87,7 @@ describe 'server', ->
           done()
 
       it 'returns a 500 error when wkhtmltopdf returns a nonzero status code', (done)->
-        process.env.PATH = 'stubs/fail'
+        process.env.PATH = __dirname + '/stubs/fail'
 
         spyOn(process.stdout, 'write')
 
