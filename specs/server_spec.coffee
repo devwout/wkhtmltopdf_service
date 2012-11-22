@@ -139,5 +139,16 @@ describe 'server', ->
           expect(process.stdout.write.mostRecentCall.args).toMatch /Error 5/
           done()
 
+    describe 'with a html and url parameter in the body', ->
+      html = 'html=<body>Some Juicy Html <img src="relative/page"/></body>&url=http://test.com/page'
+
+      it 'replaces relative image sources in the html with absolute onces before sending it to wkhtmltopdf', (done)->
+        process.env.PATH = __dirname + '/stubs/html'
+
+        post '/pdf', html, (res, body)->
+          expect(res.statusCode).toBe 200
+          expect(body).toBe '<body>Some Juicy Html <img src="http://test.com/page/relative/page"/></body>'
+          done()
+
   it '[AFTER] shuts down the HTTP server', ->
     server.close()

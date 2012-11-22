@@ -5,6 +5,8 @@ var url = require('url');
 var querystring = require('querystring');
 var child_process = require('child_process');
 
+var absolutize_html = require('./lib/absolutize_html').absolutize_html;
+
 var host = '0.0.0.0'
 var port = process.env.PORT || 8779;
 
@@ -61,7 +63,11 @@ exports.server = http.createServer(function (req, res) {
       req.on('end', function() {
         var post = querystring.parse(body);
         var html = post.html;
+        var url = post.url;
         if (html) {
+          if (url) {
+            html = absolutize_html(html, url);
+          }
           handleHtmlToPdf(html, res);
         } else {
           res.writeHead(400, {'Content-Type': 'text/plain'});

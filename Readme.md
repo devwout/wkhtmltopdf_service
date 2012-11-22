@@ -24,6 +24,7 @@ The post body should contain the following parameters, url encoded.
 Note: Multipart forms are not supported.
 
 * `html` The HTML document to render.
+* `url` (optional) URL of the original. Will be used to resolve relative urls in stylesheets and images.
 
 Use from the browser
 --------------------
@@ -44,6 +45,10 @@ and call the `print_pdf` function.
       textarea.name = 'html';
       textarea.value = document.documentElement.innerHTML;
       form.appendChild(textarea);
+      var input = document.createElement('input');
+      input.name = 'url';
+      input.value = document.location.href;
+      form.appendChild(input);
       form.action = print_pdf_url;
       form.method = 'POST';
       form.setAttribute('style', 'display:none');
