@@ -80,6 +80,7 @@ describe 'server', ->
         post '/pdf', html, (res, body)->
           expect(res.statusCode).toBe 200
           expect(res.headers['content-length']).toBe '29911'
+          expect(body).toEqual fs.readFileSync(__dirname + '/stubs/binary/binary_data').toString()
           done()
 
       it 'returns a 500 error when wkhtmltopdf does not exist in env.PATH', (done)->
