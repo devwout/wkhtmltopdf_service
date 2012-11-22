@@ -19,8 +19,8 @@ function handleHtmlToPdf(html, res) {
     if (code === 0) {
       var buffer = Buffer.concat(buffers);
       res.writeHead(200, {
-        'Content-Type': 'application/pdf', 
-        //'Content-Length': buffer.length
+        'Content-Type': 'application/pdf',
+        'Content-Length': buffer.length
       });
       res.end(buffer);
     } else {

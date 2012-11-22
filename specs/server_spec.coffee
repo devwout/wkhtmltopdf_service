@@ -1,5 +1,6 @@
 describe 'server', ->
 
+  fs = require('fs')
   http = require('http')
   server = require('../server').server
   
@@ -70,7 +71,7 @@ describe 'server', ->
           expect(res.headers['content-type']).toBe 'application/pdf'
           expect(body.length).not.toBe 0
           expect(body).toEqual 'response_from_ok_stub\n'
-          #expect(res.headers['content-length']).toBe String(Buffer.byteLength(body))
+          expect(res.headers['content-length']).toBe '22'
           done()
 
       it 'returns a 200 with the unmodified binary PDF output', (done)->
@@ -78,7 +79,7 @@ describe 'server', ->
 
         post '/pdf', html, (res, body)->
           expect(res.statusCode).toBe 200
-          #expect(body).toEqual 
+          expect(res.headers['content-length']).toBe '29911'
           done()
 
       it 'returns a 500 error when wkhtmltopdf does not exist in env.PATH', (done)->
