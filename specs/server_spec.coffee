@@ -17,6 +17,7 @@ describe 'server', ->
 
   beforeEach ->
     process.env.PATH = __dirname + '/stubs/ok'
+    delete process.env.WKHTMLTOPDF_DEFAULT_OPTIONS
 
   describe 'GET randomurl', ->
     it 'returns a 404 error', (done)->
@@ -82,6 +83,35 @@ describe 'server', ->
           expect(res.headers['content-length']).toBe '29911'
           expect(body).toEqual fs.readFileSync(__dirname + '/stubs/binary/binary_data').toString()
           done()
+
+      describe 'when env.WKHTMLTOPDF_DEFAULT_OPTIONS is unset', ->
+        it 'runs wkhtmltopdf without extra options', (done)->
+          process.env.PATH = __dirname + '/stubs/options'
+
+          post '/pdf', html, (res, body)->
+            expect(res.statusCode).toBe 200
+            expect(body).toBe '2\n-\n-\n'
+            done()
+
+      describe 'when env.WKHTMLTOPDF_DEFAULT_OPTIONS is set', ->
+        it 'runs wkhtmltopdf with the options present in env.WKHTMLTOPDF_DEFAULT_OPTIONS', (done)->
+          process.env.PATH = __dirname + '/stubs/options'
+          process.env.WKHTMLTOPDF_DEFAULT_OPTIONS = '--some-random-option --given-in-the-environment'
+
+          post '/pdf', html, (res, body)->
+            expect(res.statusCode).toBe 200
+            expect(body).toBe '4\n--some-random-option\n--given-in-the-environment\n-\n-\n'
+            done()
+
+      describe 'when env.WKHTMLTOPDF_DEFAULT_OPTIONS is set to an empty string', ->
+        it 'runs wkhtmltopdf with the options present in env.WKHTMLTOPDF_DEFAULT_OPTIONS', (done)->
+          process.env.PATH = __dirname + '/stubs/options'
+          process.env.WKHTMLTOPDF_DEFAULT_OPTIONS = ''
+
+          post '/pdf', html, (res, body)->
+            expect(res.statusCode).toBe 200
+            expect(body).toBe '2\n-\n-\n'
+            done()
 
       it 'returns a 500 error when wkhtmltopdf does not exist in env.PATH', (done)->
         process.env.PATH = ''

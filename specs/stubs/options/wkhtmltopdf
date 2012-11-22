@@ -1,0 +1,6 @@
+#!/bin/bash
+IFS='' # don't separate the options on space/tab/newline
+echo $#
+for option in $@ ; do
+  echo $option
+done

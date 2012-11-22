@@ -11,8 +11,19 @@ var port = process.env.PORT || 8779;
 var wkhtmltopdf = 'wkhtmltopdf' // command to execute
 var documentation = fs.readFileSync(path.join(__dirname, 'Readme.md'));
 
+function optionsFromEnv() {
+  var options = process.env.WKHTMLTOPDF_DEFAULT_OPTIONS;
+  if (options) {
+    return options.split(' ');
+  } else {
+    return [];
+  }
+}
+
 function handleHtmlToPdf(html, res) {
-  var child = child_process.spawn(wkhtmltopdf, ['-', '-']);
+  var arguments = optionsFromEnv().concat(['-', '-']);
+  var io_options = {stdio: ['pipe', 'pipe', process.stderr]};
+  var child = child_process.spawn(wkhtmltopdf, arguments, io_options);
   var buffers = [];
   child.stdout.on('data', function(data) { buffers.push(data) });
   child.on('close', function(code) {

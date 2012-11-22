@@ -22,6 +22,7 @@ Configuration
 The following environment variables can be used to configure the service.
 
 * `PORT` TCP port the service should bind to. Defaults to `8779`.
+* `WKHTMLTOPDF_DEFAULT_OPTIONS` default command-line options for wkhtmltopdf.
 
 Running
 -------
@@ -30,6 +31,7 @@ Running
 
 `npm start` runs the server.
 `env PORT=8080 npm start` runs the server on port 8080.
+`env WKHTMLTOPDF_DEFAULT_OPTIONS=--print-media-type npm start` runs the server with custom options.
 `./env.osx npm start` runs the server with the correct PATH for Mac OS X.
 
 `npm test` runs the test suite.
