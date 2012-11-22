@@ -73,6 +73,14 @@ describe 'server', ->
           #expect(res.headers['content-length']).toBe String(Buffer.byteLength(body))
           done()
 
+      it 'returns a 200 with the unmodified binary PDF output', (done)->
+        process.env.PATH = __dirname + '/stubs/binary'
+
+        post '/pdf', html, (res, body)->
+          expect(res.statusCode).toBe 200
+          #expect(body).toEqual 
+          done()
+
       it 'returns a 500 error when wkhtmltopdf does not exist in env.PATH', (done)->
         process.env.PATH = ''
 

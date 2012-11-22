@@ -1,0 +1,2 @@
+#!/bin/bash
+/bin/cat ${BASH_SOURCE[0]}/../binary_data

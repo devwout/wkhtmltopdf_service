@@ -15,16 +15,14 @@ function handleHtmlToPdf(html, res) {
   var child = child_process.spawn(wkhtmltopdf, ['-', '-']);
   var buffers = [];
   child.stdout.on('data', function(data) { buffers.push(data) });
-  child.on('exit', function(code) {
+  child.on('close', function(code) {
     if (code === 0) {
-      child.stdout.on('end', function() {
-        var buffer = Buffer.concat(buffers);
-        res.writeHead(200, {
-          'Content-Type': 'application/pdf', 
-          //'Content-Length': buffer.length
-        });
-        res.end(buffer);
+      var buffer = Buffer.concat(buffers);
+      res.writeHead(200, {
+        'Content-Type': 'application/pdf', 
+        //'Content-Length': buffer.length
       });
+      res.end(buffer);
     } else {
       console.log('Error while running wkhtmltopdf: Error ' + code);
       res.writeHead(500, {'Content-Type': 'text/plain'});
