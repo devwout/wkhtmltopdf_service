@@ -1,4 +1,5 @@
 var fs = require('fs');
+var temp = require('temp');
 var path = require('path')
 var http = require('http');
 var url = require('url');
@@ -23,27 +24,31 @@ function optionsFromEnv() {
 }
 
 function handleHtmlToPdf(html, res) {
-  var arguments = optionsFromEnv().concat(['-', '-']);
-  var io_options = {stdio: ['pipe', 'pipe', process.stderr]};
-  var child = child_process.spawn(wkhtmltopdf, arguments, io_options);
-  var buffers = [];
-  child.stdout.on('data', function(data) { buffers.push(data) });
-  child.on('close', function(code) {
-    if (code === 0) {
-      var buffer = Buffer.concat(buffers);
-      res.writeHead(200, {
-        'Content-Type': 'application/pdf',
-        'Content-Length': buffer.length
-      });
-      res.end(buffer);
-    } else {
-      console.log('Error while running wkhtmltopdf: Error ' + code);
-      res.writeHead(500, {'Content-Type': 'text/plain'});
-      res.end('Error while running wkhtmltopdf');
-    }
+  var args = optionsFromEnv().concat(['-', '-']);
+  var temppath = temp.path('wkhtmltopdf');
+  fs.open(temppath, 'w', function(err, fd) {
+    // TODO: handle err
+    var io_options = {stdio: ['pipe', fd, process.stderr]};
+    var child = child_process.spawn(wkhtmltopdf, args, io_options);
+    child.on('exit', function(code) {
+      if (code === 0) {
+        fs.readFile(temppath, function(err, data) {
+          // TODO: handle err
+          res.writeHead(200, {
+            'Content-Type': 'application/pdf',
+            'Content-Length': data.length
+          });
+          res.end(data);
+        });
+      } else {
+        console.log('Error while running wkhtmltopdf: Error ' + code);
+        res.writeHead(500, {'Content-Type': 'text/plain'});
+        res.end('Error while running wkhtmltopdf');
+      }
+    });
+    child.stdin.on('error', function() { });
+    child.stdin.end(html);
   });
-  child.stdin.on('error', function() { });
-  child.stdin.end(html);
 }
 
 exports.server = http.createServer(function (req, res) {
