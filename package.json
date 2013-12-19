@@ -6,7 +6,7 @@
   "dependencies": {
   },
   "devDependencies": {
-    "jasmine-node": "1.0.26"
+    "jasmine-node": "1.11.0"
   },
   "engines": {
     "node": "node >=0.8.4"
