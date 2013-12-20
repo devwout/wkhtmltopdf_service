@@ -113,6 +113,54 @@ describe 'server', ->
             expect(body).toBe '2\n-\n-\n'
             done()
 
+      describe 'when env.WKHTMLTOPDF_ALLOWED_OPTIONS is set', ->
+        describe 'and no extra http parameters are provided', ->
+          it 'runs wkhtmltopdf with the options present in env.WKHTMLTOPDF_DEFAULT_OPTIONS', (done)->
+            process.env.PATH = __dirname + '/stubs/options'
+            process.env.WKHTMLTOPDF_ALLOWED_OPTIONS = '--footer-left --header-left'
+            process.env.WKHTMLTOPDF_DEFAULT_OPTIONS = '--some-random-option'
+
+            post '/pdf', html, (res, body)->
+              expect(res.statusCode).toBe 200
+              expect(body).toBe '3\n--some-random-option\n-\n-\n'
+              done()
+
+        describe 'and extra allowed options are given as http parameters', ->
+          it 'runs wkhtmltopdf with the options present in env.WKHTMLTOPDF_DEFAULT_OPTIONS', (done)->
+            process.env.PATH = __dirname + '/stubs/options'
+            process.env.WKHTMLTOPDF_ALLOWED_OPTIONS = '--footer-left --header-left'
+            process.env.WKHTMLTOPDF_DEFAULT_OPTIONS = '--some-random-option'
+
+            params = html + '&--footer-left=this%20is%20awesome&--header-left=x&--non-existing=x'
+
+            post '/pdf', params, (res, body)->
+              expect(res.statusCode).toBe 200
+              expect(body).toBe '7\n--some-random-option\n--footer-left\nthis is awesome\n--header-left\nx\n-\n-\n'
+              done()
+
+          it 'allows options without values', (done)->
+            process.env.PATH = __dirname + '/stubs/options'
+            process.env.WKHTMLTOPDF_ALLOWED_OPTIONS = '--some-option'
+
+            params = html + '&--some-option='
+
+            post '/pdf', params, (res, body)->
+              expect(res.statusCode).toBe 200
+              expect(body).toBe '3\n--some-option\n-\n-\n'
+              done()
+
+          it 'does not allow repeated options (for now)', (done)->
+            process.env.PATH = __dirname + '/stubs/options'
+            process.env.WKHTMLTOPDF_ALLOWED_OPTIONS = '--footer-left --header-left'
+
+            params = html + '&--footer-left=1&footer-left=2'
+
+            post '/pdf', params, (res, body)->
+              expect(res.statusCode).toBe 200
+              expect(body).toBe '4\n--footer-left\n1\n-\n-\n'
+              #expect(body).toBe '6\n--footer-left\n1\n--footer-left\n2\n-\n-\n'
+              done()
+
       # FIXME: when encountering this, nodejs v0.10.18 exits, instead of returning 500.
       xit 'returns a 500 error when wkhtmltopdf does not exist in env.PATH', (done)->
         process.env.PATH = ''

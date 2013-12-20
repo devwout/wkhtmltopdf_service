@@ -13,8 +13,7 @@ var port = process.env.PORT || 8779;
 var wkhtmltopdf = 'wkhtmltopdf' // command to execute
 var documentation = fs.readFileSync(path.join(__dirname, 'Readme.md'));
 
-function optionsFromEnv() {
-  var options = process.env.WKHTMLTOPDF_DEFAULT_OPTIONS;
+function splitOptions(options) {
   if (options) {
     return options.split(' ');
   } else {
@@ -22,10 +21,27 @@ function optionsFromEnv() {
   }
 }
 
-function handleHtmlToPdf(html, res) {
-  var arguments = optionsFromEnv().concat(['-', '-']);
+function optionsFromEnv() {
+  return splitOptions(process.env.WKHTMLTOPDF_DEFAULT_OPTIONS);
+}
+
+function optionsFromParams(params) {
+  var allowed = splitOptions(process.env.WKHTMLTOPDF_ALLOWED_OPTIONS);
+  var options = [];
+  allowed.forEach(function(option) {
+    if (params[option]) {
+      options.push(option, params[option]);
+    } else if (params[option] === '') {
+      options.push(option);
+    }
+  });
+  return options;
+}
+
+function handleHtmlToPdf(html, params, res) {
+  var args = optionsFromEnv().concat(optionsFromParams(params), ['-', '-']);
   var io_options = {stdio: ['pipe', 'pipe', process.stderr]};
-  var child = child_process.spawn(wkhtmltopdf, arguments, io_options);
+  var child = child_process.spawn(wkhtmltopdf, args, io_options);
   var buffers = [];
   child.stdout.on('data', function(data) { buffers.push(data) });
   child.on('close', function(code) {
@@ -68,7 +84,7 @@ exports.server = http.createServer(function (req, res) {
           if (url) {
             html = absolutize_html(html, url);
           }
-          handleHtmlToPdf(html, res);
+          handleHtmlToPdf(html, post, res);
         } else {
           res.writeHead(400, {'Content-Type': 'text/plain'});
           res.end('Form parameter "html" required');
